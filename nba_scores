@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Set the API endpoint and access credentials
+API_ENDPOINT="https://api.nba.com/scores/json"
+API_KEY="your_api_key_here"
+
+# Use cURL to retrieve the scores from the API
+curl -H "Authorization: Bearer $API_KEY" $API_ENDPOINT > scores.json
+
+# Parse the JSON data and extract the relevant information
+jq '.games[] | {home: .hTeam.nickName, home_score: .hTeam.score, away: .vTeam.nickName, away_score: .vTeam.score}' scores.json
+
+# Clean up by removing the temporary JSON file
+rm scores.json
