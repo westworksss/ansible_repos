@@ -1,0 +1,114 @@
+import pygame
+import random
+
+# Define some colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+
+# Set the width and height of the screen [width, height]
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Initialize Pygame
+pygame.init()
+
+# Set the screen size
+screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
+
+# Set the game's caption
+pygame.display.set_caption("Side Scroller")
+
+# Define the player class
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface([50, 50])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = SCREEN_WIDTH / 2
+        self.rect.y = SCREEN_HEIGHT - 100
+        self.speed = 5
+        
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.rect.x > 0:
+            self.rect.x -= self.speed
+        elif keys[pygame.K_RIGHT] and self.rect.x < SCREEN_WIDTH - 50:
+            self.rect.x += self.speed
+
+# Define the obstacle class
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface([50, 50])
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(SCREEN_WIDTH - 50)
+        self.rect.y = -50
+        self.speed = 5
+        
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.y > SCREEN_HEIGHT:
+            self.rect.x = random.randrange(SCREEN_WIDTH - 50)
+            self.rect.y = -50
+
+# Create the player sprite
+player = Player()
+
+# Create a sprite group for the obstacles
+obstacles = pygame.sprite.Group()
+
+# Set up the clock
+clock = pygame.time.Clock()
+
+# Set the game state
+game_over = False
+
+# Set the score
+score = 0
+
+# Set the font
+font = pygame.font.Font(None, 36)
+
+# Loop until the user clicks the close button
+while not game_over:
+    # Process events (clicks, keys, etc)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            game_over = True
+    
+    # Create a new obstacle at a random time
+    if random.randrange(100) < 3:
+        obstacle = Obstacle()
+        obstacles.add(obstacle)
+    
+    # Update the player and obstacle sprites
+    player.update()
+    obstacles.update()
+    
+    # Check for collisions between the player and obstacles
+    if pygame.sprite.spritecollide(player, obstacles, False):
+        game_over = True
+    
+    # Draw the background
+    screen.fill(BLACK)
+    
+    # Draw the player and obstacle sprites
+    obstacles.draw(screen)
+    screen.blit(player.image, player.rect)
+    
+    # Draw the score
+    score += 1
+    score_text = font.render("Score: {}".format(score // 10), True, WHITE)
+    screen.blit(score_text, [10, 10])
+    
+    # Update the screen
+    pygame.display.flip()
+    
+    # Set the clock tick rate
+    clock.tick(60)
+
+# Clean up the Pygame library
+pygame.quit()
