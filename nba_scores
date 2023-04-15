@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Set the API endpoint and access credentials
+API_ENDPOINT="sportspage-feeds.p.rapidapi.com"
+API_KEY="51c18d3ee0msh47be5fd88511fdfp12af57jsnea22e523c983"
+
+# Use cURL to retrieve the scores from the API
+curl -H "Authorization: Bearer $API_KEY" $API_ENDPOINT > scores.json
+
+# Parse the JSON data and extract the relevant information
+jq '.games[] | {home: .hTeam.nickName, home_score: .hTeam.score, away: .vTeam.nickName, away_score: .vTeam.score}' scores.json
+
+# Clean up by removing the temporary JSON file
+rm scores.json
